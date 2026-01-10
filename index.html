@@ -342,41 +342,70 @@
       </div>
 
       <div class="ratio-embed">
-        <!-- Try embedding Wavelog export map -->
-        <iframe
-          title="Last 1000 QSOs map"
-          src="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          style="width:100%; height:100%; border:0; display:block;">
-        </iframe>
+        <!-- Interactive map (works on your own site; may be blocked inside QRZ). -->
+        <div id="mapEmbed" style="width:100%; height:100%;">
+          <iframe
+            title="Last 1000 QSOs map"
+            src="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+            style="width:100%; height:100%; border:0; display:block;">
+          </iframe>
+        </div>
 
-        <!-- Fallback (shown if iframe blocked by browser/server settings) -->
-        <div class="map-cta" style="display:none" id="mapFallback">
-          <p>Falls die Karte hier nicht lädt: öffne sie in einem neuen Tab.</p>
+        <!-- QRZ-safe fallback: show hint + local image -->
+        <div class="map-cta" id="mapFallback" style="display:none; width:100%; height:100%; overflow:auto;">
+          <p><strong>Map preview</strong></p>
           <p>
+            QRZ blocks embedding this external map in an iframe.  
+            Open it here:
             <a href="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn" target="_blank" rel="noreferrer noopener">
-              https://log.dclnext.darc.de/visitor/exportmap/dn9dkn
+              log.dclnext.darc.de/visitor/exportmap/dn9dkn
             </a>
           </p>
+          <p style="margin:0.9rem 0 0.6rem;">Preview image:</p>
+          <img
+            src="./img/wavelog.png"
+            alt="Wavelog map preview"
+            loading="lazy"
+            style="max-width:100%; height:auto; border-radius:12px; border:1px solid var(--line);" />
         </div>
       </div>
       <p class="sub">Red = unconfirmed · Green = confirmed. last 1000 QSOs</p>
       <script>
-        // If the iframe fails to load (blocked), show fallback link.
-        (function(){
-          const f = document.querySelector('iframe[title="Last 1000 QSOs map"]');
-          const fb = document.getElementById('mapFallback');
-          if (!f || !fb) return;
+        (function () {
+          // If this page is embedded (e.g., inside QRZ), show fallback by default
+          // because QRZ often prevents nested third-party iframes from loading.
+          const isFramed = (window.self !== window.top);
+
+          let fromQRZ = false;
+          try {
+            const ref = document.referrer || "";
+            fromQRZ = /(^|\.)qrz\.com$/i.test(new URL(ref).hostname);
+          } catch (_) {}
+
+          const embed = document.getElementById("mapEmbed");
+          const fallback = document.getElementById("mapFallback");
+          if (!embed || !fallback) return;
+
+          if (isFramed || fromQRZ) {
+            embed.style.display = "none";
+            fallback.style.display = "block";
+            return;
+          }
+
+          // Outside QRZ: keep iframe, but still provide a timed fallback if it seems blocked.
+          const iframe = embed.querySelector("iframe");
+          if (!iframe) return;
 
           let loaded = false;
-          f.addEventListener('load', () => { loaded = true; });
+          iframe.addEventListener("load", () => { loaded = true; });
 
-          // After a short delay: if not loaded, show fallback
           setTimeout(() => {
+            // If not loaded after a short delay, switch to fallback.
             if (!loaded) {
-              fb.style.display = 'block';
-              f.style.display = 'none';
+              embed.style.display = "none";
+              fallback.style.display = "block";
             }
           }, 2500);
         })();
