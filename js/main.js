@@ -1,92 +1,92 @@
 (function () {
-  // Try loading optional config.js AFTER config.example.js
-  // If user created js/config.js, it should overwrite CONFIG.
-  const tryLoadConfigJs = () =>
-    new Promise((resolve) => {
-      const s = document.createElement("script");
-      s.src = "./js/config.js";
-      s.onload = () => resolve(true);
-      s.onerror = () => resolve(false);
-      document.head.appendChild(s);
-    });
+  const byId = (id) => document.getElementById(id);
+  const safeText = (v) => (v == null ? "" : String(v));
 
-  const safeText = (s) => (s == null ? "" : String(s));
+  const waitForOptionalConfig = async () => {
+    // Wait a tick so config.js (if present) has a chance to load.
+    await new Promise((r) => setTimeout(r, 0));
+    return window.CONFIG || {};
+  };
+
+  const pad2 = (n) => String(n).padStart(2, "0");
   const fmtUTC = (isoOrDate) => {
     try {
       const d = new Date(isoOrDate);
-      // Format: YYYY-MM-DD HH:MM
-      const pad = (n) => String(n).padStart(2, "0");
-      return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+      if (Number.isNaN(d.getTime())) return safeText(isoOrDate);
+      return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())} ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
     } catch {
       return safeText(isoOrDate);
     }
   };
 
-  const sampleQsos = [
-    { time_utc: "2026-01-10T10:12:00Z", call: "DL1ABC", band: "20m", mode: "SSB", rst: "59/59", country: "Germany", lat: 52.52, lon: 13.405 },
-    { time_utc: "2026-01-10T09:48:00Z", call: "OK2XYZ", band: "40m", mode: "CW",  rst: "579/579", country: "Czechia", lat: 49.195, lon: 16.607 },
-    { time_utc: "2026-01-10T09:03:00Z", call: "PA3DEF", band: "10m", mode: "FT8", rst: "-10/-12", country: "Netherlands", lat: 52.367, lon: 4.904 }
-  ];
+  const setText = (id, text) => {
+    const el = byId(id);
+    if (el) el.textContent = text;
+  };
 
-  const byId = (id) => document.getElementById(id);
-
-  const setMail = (cfg) => {
-    const mail = `${cfg.qslMail?.user || "qsl"}@${cfg.qslMail?.domain || "example.com"}`;
-    const link = byId("mailLink");
-    const text = byId("qslMailText");
-    if (link) {
-      link.textContent = mail;
-      link.href = `mailto:${mail}`;
+  const setHrefOrHide = (id, href) => {
+    const el = byId(id);
+    if (!el) return;
+    if (!href) {
+      el.style.display = "none";
+      return;
     }
-    if (text) text.textContent = mail;
+    el.href = href;
   };
 
-  const setStation = (cfg) => {
-    byId("locatorText").textContent = safeText(cfg.station?.locator || "—");
-    byId("qthText").textContent = safeText(cfg.station?.qth || "—");
-    byId("rigText").textContent = safeText(cfg.station?.rig || "—");
+  const buildMail = (cfg) => {
+    const user = cfg.mail?.user || "qsl";
+    const domain = cfg.mail?.domain || "example.com";
+    return `${user}@${domain}`;
   };
 
-  const setLocationTile = (cfg) => {
-    const t = byId("locationText");
-    const a = byId("locationLink");
+  const renderAwards = (awards) => {
+    const tb = byId("awardsTbody");
+    if (!tb) return;
 
-    const txt = safeText(cfg.locationTile?.text || "—");
-    const url = safeText(cfg.locationTile?.url || "https://www.openstreetmap.org/");
+    tb.innerHTML = "";
+    if (!Array.isArray(awards) || awards.length === 0) {
+      tb.innerHTML = `<tr><td colspan="4" class="muted">Keine Awards konfiguriert.</td></tr>`;
+      return;
+    }
 
-    if (t) t.textContent = txt;
-    if (a) a.href = url;
-  };
-
-  const setOnAirIframe = (cfg) => {
-    const iframe = byId("onAirIframe");
-    if (!iframe) return;
-
-    const url = safeText(cfg.onAirWidgetUrl || "");
-    iframe.src = url;
-
-    const badge = byId("statusBadge");
-    if (badge) {
-      const strong = badge.querySelector("strong");
-      // Minimal: if url set => "Active", else "Not configured"
-      strong.textContent = url ? "Configured" : "Not configured";
+    for (const a of awards) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><strong>${safeText(a.name)}</strong></td>
+        <td>${safeText(a.number || "")}</td>
+        <td>${safeText(a.granted_utc || "")}</td>
+        <td>${Array.isArray(a.endorsements) ? a.endorsements.map(safeText).join(", ") : ""}</td>
+      `;
+      tb.appendChild(tr);
     }
   };
 
-  const setLogLink = (cfg) => {
-    const a = byId("qsoOpenLogLink");
-    if (!a) return;
-    const url = safeText(cfg.logUrl || "#");
-    a.href = url;
+  const loadQsos = async (cfg) => {
+    const url = cfg.qsos?.url;
+    if (!url) return [];
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("QSO JSON is not an array");
+      const max = Number(cfg.qsos?.max || 25);
+      return data.slice(0, Math.max(1, max));
+    } catch (e) {
+      console.warn("QSO load failed:", e);
+      return [];
+    }
   };
 
   const renderQsoTable = (qsos) => {
     const tb = byId("qsoTbody");
+    const meta = byId("qsoMeta");
     if (!tb) return;
 
     tb.innerHTML = "";
-    if (!qsos.length) {
-      tb.innerHTML = `<tr><td colspan="6" class="muted">Keine Daten.</td></tr>`;
+    if (!Array.isArray(qsos) || qsos.length === 0) {
+      tb.innerHTML = `<tr><td colspan="5" class="muted">Keine Daten. (Setze qsos.url in config.js)</td></tr>`;
+      if (meta) meta.textContent = "Einträge: 0";
       return;
     }
 
@@ -97,51 +97,39 @@
         <td><strong>${safeText(q.call || "—")}</strong></td>
         <td>${safeText(q.band || "—")}</td>
         <td>${safeText(q.mode || "—")}</td>
-        <td>${safeText(q.rst || q.rst_sent && q.rst_recv ? `${q.rst_sent}/${q.rst_recv}` : "—")}</td>
         <td>${safeText(q.country || "—")}</td>
       `;
       tb.appendChild(tr);
     }
-
-    const meta = byId("qsoMeta");
     if (meta) meta.textContent = `Einträge: ${qsos.length}`;
   };
 
-  const loadQsos = async (cfg) => {
-    const url = safeText(cfg.qsoJsonUrl || "");
-    if (!url) return sampleQsos;
-
-    try {
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (!Array.isArray(data)) throw new Error("JSON is not an array");
-      return data;
-    } catch (e) {
-      console.warn("QSO load failed, using sample data:", e);
-      return sampleQsos;
-    }
-  };
-
   const initMap = (cfg, qsos) => {
-    const mapEl = byId("leafletMap");
+    const mapEl = byId("map");
     if (!mapEl || typeof L === "undefined") return;
 
-    const center = cfg.map?.center || [51.1657, 10.4515];
-    const zoom = cfg.map?.zoom ?? 5;
+    const lat = Number(cfg.coords?.lat);
+    const lon = Number(cfg.coords?.lon);
+    const hasHome = Number.isFinite(lat) && Number.isFinite(lon);
 
-    const map = L.map(mapEl, { scrollWheelZoom: false }).setView(center, zoom);
+    const zoom = Number(cfg.map?.zoom ?? 6);
+    const map = L.map(mapEl, { scrollWheelZoom: false }).setView(
+      hasHome ? [lat, lon] : [51.1657, 10.4515],
+      hasHome ? zoom : 5
+    );
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
+      attribution: "&copy; OpenStreetMap"
     }).addTo(map);
 
-    const points = qsos
-      .filter((q) => Number.isFinite(q.lat) && Number.isFinite(q.lon))
+    const points = (Array.isArray(qsos) ? qsos : [])
+      .filter((q) => Number.isFinite(Number(q.lat)) && Number.isFinite(Number(q.lon)))
       .map((q) => ({ ...q, lat: Number(q.lat), lon: Number(q.lon) }));
 
-    if (!points.length) return;
+    const homeMarker = hasHome
+      ? L.circleMarker([lat, lon], { radius: 7 }).addTo(map).bindPopup(`<strong>${safeText(cfg.callsign || "Home")}</strong><br/>Home / QTH`)
+      : null;
 
     const markers = [];
     for (const p of points) {
@@ -152,26 +140,78 @@
       markers.push(m);
     }
 
-    const bounds = L.latLngBounds(points.map((p) => [p.lat, p.lon]));
-    map.fitBounds(bounds.pad(0.25));
-  };
+    const meta = byId("mapMeta");
+    if (meta) meta.textContent = `Marker: ${markers.length}${homeMarker ? " (+Home)" : ""}`;
 
-  const setYear = () => {
-    const y = byId("year");
-    if (y) y.textContent = String(new Date().getFullYear());
+    const openLink = byId("mapOpenLink");
+    if (openLink) {
+      const url = hasHome
+        ? `https://www.openstreetmap.org/?mlat=${encodeURIComponent(lat)}&mlon=${encodeURIComponent(lon)}#map=${encodeURIComponent(zoom)}/${encodeURIComponent(lat)}/${encodeURIComponent(lon)}`
+        : "https://www.openstreetmap.org/";
+      openLink.href = url;
+    }
+
+    // Fit bounds if we have QSO points
+    if (points.length) {
+      const bounds = L.latLngBounds(points.map((p) => [p.lat, p.lon]));
+      map.fitBounds(bounds.pad(0.25));
+    }
   };
 
   (async function boot() {
-    await tryLoadConfigJs(); // optional
-    const cfg = window.CONFIG || {};
+    const cfg = await waitForOptionalConfig();
 
-    setYear();
-    setMail(cfg);
-    setStation(cfg);
-    setLocationTile(cfg);
-    setOnAirIframe(cfg);
-    setLogLink(cfg);
+    const callsign = cfg.callsign || "DN9DKN";
+    setText("callsignText", callsign);
+    setText("callsignH1", callsign);
+    setText("callsignFooter", callsign);
 
+    setText("taglineText", safeText(cfg.tagline || ""));
+    setText("dxccText", safeText(cfg.qth || "Germany"));
+    setText("qthText", safeText(cfg.qth || "—"));
+    setText("gridText", safeText(cfg.grid || "—"));
+    setText("gridText2", safeText(cfg.grid || "—"));
+
+    const lat = Number(cfg.coords?.lat);
+    const lon = Number(cfg.coords?.lon);
+    const coords = (Number.isFinite(lat) && Number.isFinite(lon))
+      ? `${lat.toFixed(6)}, ${lon.toFixed(6)}`
+      : "—";
+    setText("coordsText", coords);
+
+    setText("rigText", safeText(cfg.rig || "—"));
+    setText("qslText", safeText(cfg.qslText || "—"));
+
+    // About text
+    const aboutEl = byId("aboutText");
+    if (aboutEl && cfg.aboutHtml) {
+      aboutEl.innerHTML = cfg.aboutHtml;
+    } else if (aboutEl && cfg.aboutText) {
+      aboutEl.textContent = cfg.aboutText;
+    }
+
+    // Links
+    setHrefOrHide("qrzLink", cfg.links?.qrz || "https://www.qrz.com/db/" + encodeURIComponent(callsign));
+    setHrefOrHide("wavelogLink", cfg.links?.wavelog || "");
+    setHrefOrHide("clublogLink", cfg.links?.clublog || "");
+    setHrefOrHide("lotwLink", cfg.links?.lotw || "");
+    setHrefOrHide("eqslLink", cfg.links?.eqsl || "");
+
+    // Mail (assembled)
+    const mail = buildMail(cfg);
+    const mailEls = [byId("mailLink"), byId("mailLink2")].filter(Boolean);
+    for (const el of mailEls) {
+      el.textContent = mail;
+      el.href = `mailto:${mail}`;
+    }
+
+    // Year
+    setText("year", String(new Date().getFullYear()));
+
+    // Awards
+    renderAwards(cfg.awards || []);
+
+    // QSOs + map
     const qsos = await loadQsos(cfg);
     renderQsoTable(qsos);
     initMap(cfg, qsos);

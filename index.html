@@ -3,12 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="DN9DKN – Amateurfunk, Station, letzte QSOs, On-Air Status." />
-  <title>DN9DKN</title>
+  <meta name="description" content="DN9DKN – Amateurfunk-Station: QSL-Info, Awards, Links und (optional) letzte QSOs & Karte." />
+  <title>DN9DKN · Amateur Radio</title>
+  <link rel="canonical" href="https://www.dn9dkn.de/" />
+  <meta property="og:site_name" content="DN9DKN" />
+  <meta property="og:title" content="DN9DKN · Amateur Radio" />
+  <meta property="og:description" content="DN9DKN – Amateurfunk-Station: QSL-Info, Awards, Links und (optional) letzte QSOs & Karte." />
+  <meta property="og:url" content="https://www.dn9dkn.de/" />
 
+
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./css/styles.css" />
 
-  <!-- Leaflet (für interaktive Karte, kein iframe) -->
+  <!-- Leaflet (optional map) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
@@ -19,178 +26,198 @@
   <header class="site-header">
     <div class="container header-inner">
       <div class="brand">
-        <div class="callsign">DN9DKN</div>
-        <div class="tagline">Amateurfunk · Station · Last QSOs</div>
+        <div class="brand-mark" aria-hidden="true">
+          <img src="./assets/dn9dkn-mark.svg" alt="" />
+        </div>
+        <div>
+          <div class="callsign" id="callsignText">DN9DKN</div>
+          <div class="tagline" id="taglineText">Amateur Radio · Germany</div>
+        </div>
       </div>
 
       <nav class="nav">
-        <a href="#onair">On Air</a>
+        <a href="#about">Info</a>
+        <a href="#qsl">QSL</a>
+        <a href="#awards">Awards</a>
         <a href="#qsos">Letzte QSOs</a>
-        <a href="#map">Karte</a>
         <a href="#contact">Kontakt</a>
       </nav>
     </div>
   </header>
 
   <main id="content" class="container">
-    <section class="hero">
+    <section class="hero" id="about">
       <div class="hero-card">
-        <h1>DN9DKN</h1>
-        <p>
-          Willkommen! Hier findest du den <strong>On-Air Status</strong>, die
-          <strong>letzten QSOs</strong> (z. B. aus Wavelog) und eine Karte der letzten Verbindungen.
-        </p>
-        <div class="hero-badges">
-          <span class="badge" id="statusBadge" title="Wird aus dem Widget abgeleitet">Status: <strong>—</strong></span>
-          <span class="badge">QSL: <span id="qslMailText">—</span></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ON AIR -->
-    <section id="onair" class="section">
-      <div class="section-head">
-        <h2>On Air</h2>
-        <p class="muted">Live-Status / Widget (einfach URL in <code>js/config.js</code> setzen).</p>
-      </div>
-
-      <div class="grid two">
-        <div class="card">
-          <h3>Widget</h3>
-          <div class="embed">
-            <iframe
-              id="onAirIframe"
-              title="On Air Widget"
-              loading="lazy"
-              referrerpolicy="no-referrer"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              src=""
-            ></iframe>
+        <div class="hero-top">
+          <h1><span id="callsignH1">DN9DKN</span></h1>
+          <div class="hero-badges">
+            <span class="badge">Grid: <strong id="gridText">JO41AJ</strong></span>
+            <span class="badge">DXCC: <strong id="dxccText">Germany</strong></span>
+            <span class="badge">QRZ: <a class="badge-link" id="qrzLink" href="https://www.qrz.com/db/DN9DKN" target="_blank" rel="noopener">Profil öffnen</a></span>
           </div>
-          <p class="tiny muted">
-            Wenn das Widget nicht lädt: prüfe die URL in <code>CONFIG.onAirWidgetUrl</code>.
-          </p>
         </div>
 
-        <div class="card">
-          <h3>Station</h3>
-          <ul class="clean-list">
-            <li><strong>Callsign:</strong> DN9DKN</li>
-            <li><strong>Locator:</strong> <span id="locatorText">—</span></li>
-            <li><strong>QTH:</strong> <span id="qthText">—</span></li>
-            <li><strong>Rig/Antenne:</strong> <span id="rigText">—</span></li>
-          </ul>
-          <p class="tiny muted">Alles in <code>js/config.js</code> konfigurierbar.</p>
+        <p class="muted" id="aboutText">
+          Kurze Stations-Info. (Du kannst diesen Text in <code>js/config.js</code> ändern.)
+        </p>
+
+        <div class="grid two" style="margin-top:14px">
+          <div class="card">
+            <h2 class="h3">Station</h2>
+            <ul class="clean-list">
+              <li><strong>QTH:</strong> <span id="qthText">—</span></li>
+              <li><strong>Locator:</strong> <span id="gridText2">—</span></li>
+              <li><strong>Koordinaten:</strong> <span id="coordsText">—</span></li>
+              <li><strong>Rig/Antenne:</strong> <span id="rigText">—</span></li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h2 class="h3">Links</h2>
+            <div class="links">
+              <a class="button" id="wavelogLink" href="#" target="_blank" rel="noopener">Wavelog</a>
+              <a class="button" id="clublogLink" href="#" target="_blank" rel="noopener">Club Log</a>
+              <a class="button" id="lotwLink" href="#" target="_blank" rel="noopener">LoTW</a>
+              <a class="button" id="eqslLink" href="#" target="_blank" rel="noopener">eQSL</a>
+            </div>
+            <p class="tiny muted" style="margin-top:10px">
+              Links sind optional – leer lassen, dann werden sie ausgeblendet.
+            </p>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- QSOs -->
-    <section id="qsos" class="section">
+    <section class="section" id="qsl">
       <div class="section-head">
-        <h2>Letzte QSOs</h2>
-        <p class="muted">
-          Diese Liste wird aus einem JSON-Endpoint geladen. Ohne Endpoint werden Beispiel-QSOs angezeigt.
-        </p>
+        <h2>QSL Information</h2>
+        <p class="muted">Wie ich QSL bestätige.</p>
       </div>
 
       <div class="card">
-        <div class="table-wrap" aria-live="polite">
-          <table class="qso-table">
+        <p class="lead" id="qslText">PSE QSL via BUREAU / DIRECT</p>
+        <div class="row-between">
+          <div>
+            <div class="tiny muted">Kontakt:</div>
+            <div><a id="mailLink" class="link" href="#">—</a></div>
+          </div>
+          <div>
+            <div class="tiny muted">Hinweis:</div>
+            <div class="tiny muted">E-Mail wird per JS zusammengesetzt (Spam-Schutz).</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="awards">
+      <div class="section-head">
+        <h2>Awards</h2>
+        <p class="muted">Snapshot der QRZ Awards (kannst du in der Config pflegen).</p>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="table">
             <thead>
               <tr>
-                <th>UTC</th>
-                <th>Call</th>
-                <th>Band</th>
-                <th>Mode</th>
-                <th>RST</th>
-                <th>Land</th>
+                <th>Award</th>
+                <th>Nr.</th>
+                <th>Granted (UTC)</th>
+                <th>Endorsements</th>
               </tr>
             </thead>
-            <tbody id="qsoTbody">
-              <tr><td colspan="6" class="muted">Lade…</td></tr>
+            <tbody id="awardsTbody">
+              <tr><td colspan="4" class="muted">Lade…</td></tr>
             </tbody>
           </table>
         </div>
-
-        <div class="row-between">
-          <p class="tiny muted" id="qsoMeta">—</p>
-          <a class="link" id="qsoOpenLogLink" href="#" target="_blank" rel="noopener">Log öffnen</a>
-        </div>
       </div>
     </section>
 
-    <!-- MAP -->
-    <section id="map" class="section">
+    <section class="section" id="qsos">
       <div class="section-head">
-        <h2>Karte der letzten QSOs</h2>
+        <h2>Letzte QSOs</h2>
         <p class="muted">
-          2:1-Format (Höhe = 50% der Breite). Falls keine Koordinaten vorhanden sind, bleibt die Karte leer.
+          Optional: lade QSOs aus einem JSON-Endpoint (z. B. Export aus Wavelog). Standardmäßig werden Demo-Daten genutzt.
         </p>
       </div>
 
       <div class="grid two">
-        <!-- “Kachel” mit Text + entspanntem Link (wie von dir gewünscht) -->
         <div class="card">
-          <h3>Ort</h3>
-          <p class="muted" id="locationText">—</p>
-          <a class="button" id="locationLink" href="#" target="_blank" rel="noopener">Auf Karte öffnen</a>
-          <p class="tiny muted">
-            Diese Kachel bleibt bewusst simpel: nur Text + Link.
-          </p>
-        </div>
-
-        <!-- interaktive Karte -->
-        <div class="card">
-          <h3>Letzte Marker</h3>
-          <div class="map-aspect-2x1">
-            <div id="leafletMap" class="map"></div>
+          <h3 class="h3">Liste</h3>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>UTC</th>
+                  <th>Call</th>
+                  <th>Band</th>
+                  <th>Mode</th>
+                  <th>Land</th>
+                </tr>
+              </thead>
+              <tbody id="qsoTbody">
+                <tr><td colspan="5" class="muted">Lade…</td></tr>
+              </tbody>
+            </table>
           </div>
-          <p class="tiny muted">
-            Interaktive Karte ohne iframe, mit OpenStreetMap Tiles.
-          </p>
+          <p class="tiny muted" id="qsoMeta" style="margin-top:10px">—</p>
         </div>
-      </div>
 
-      <div class="card note">
-        <h3>Hinweis (Englisch)</h3>
-        <p class="muted">
-          This map shows a selection of recent QSOs. Data may be incomplete or delayed (test setup).
-        </p>
+        <div class="card">
+          <h3 class="h3">Karte</h3>
+          <div class="map-aspect-2x1">
+            <div id="map" class="map"></div>
+          </div>
+          <p class="tiny muted" style="margin-top:10px">
+            This map shows a selection of recent QSOs. Data may be incomplete or delayed (test setup).
+          </p>
+          <div class="row-between">
+            <div class="tiny muted" id="mapMeta">—</div>
+            <a class="link" id="mapOpenLink" href="#" target="_blank" rel="noopener">In OpenStreetMap öffnen</a>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- CONTACT -->
-    <section id="contact" class="section">
+    <section class="section" id="contact">
       <div class="section-head">
         <h2>Kontakt</h2>
-        <p class="muted">E-Mail ist per JS zusammengesetzt (nicht rückwärts, nicht copy-broken).</p>
+        <p class="muted">Kurzer Draht für QSL / Fragen.</p>
       </div>
 
       <div class="card">
         <p>
-          QSL / Kontakt:
-          <a id="mailLink" class="link" href="#">—</a>
+          Schreib mir: <a id="mailLink2" class="link" href="#">—</a>
         </p>
         <p class="tiny muted">
-          Tipp: Wenn du zusätzliche Bot-Härtung willst, kann man auch ein Formular oder Cloudflare Email Obfuscation nutzen.
+          Du kannst hier auch ein Kontaktformular ergänzen (statisch via Formspree / Netlify Forms / Cloudflare).
         </p>
       </div>
     </section>
 
     <footer class="footer">
       <p class="tiny muted">
-        © <span id="year"></span> DN9DKN · Built with GitHub Pages
+        © <span id="year"></span> <span id="callsignFooter">DN9DKN</span> · Hosted on GitHub Pages
       </p>
     </footer>
   </main>
 
   <script src="./js/config.example.js"></script>
-  <!-- Wenn du config.js anlegst, lädt es automatisch darüber (siehe main.js) -->
+  <!-- Optional: create js/config.js to override settings -->
+  <script>
+    (function(){
+      const s = document.createElement('script');
+      s.src = './js/config.js';
+      s.defer = true;
+      s.onload = () => window.__CONFIG_LOADED__ = true;
+      s.onerror = () => window.__CONFIG_LOADED__ = false;
+      document.head.appendChild(s);
+    })();
+  </script>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
   <script src="./js/main.js"></script>
 </body>
 </html>

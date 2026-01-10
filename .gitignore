@@ -1,4 +1,6 @@
+# OS
 .DS_Store
 Thumbs.db
-node_modules/
-dist/
+
+# Optional local override config (if you create it)
+js/config.js
