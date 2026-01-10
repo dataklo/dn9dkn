@@ -374,40 +374,51 @@
       <p class="sub">Red = unconfirmed · Green = confirmed. last 1000 QSOs</p>
       <script>
         (function () {
-          // If this page is embedded (e.g., inside QRZ), show fallback by default
-          // because QRZ often prevents nested third-party iframes from loading.
           const isFramed = (window.self !== window.top);
 
           let fromQRZ = false;
           try {
             const ref = document.referrer || "";
-            fromQRZ = /(^|\.)qrz\.com$/i.test(new URL(ref).hostname);
+            fromQRZ = ref ? /(^|\.)qrz\.com$/i.test(new URL(ref).hostname) : false;
           } catch (_) {}
 
           const embed = document.getElementById("mapEmbed");
           const fallback = document.getElementById("mapFallback");
           if (!embed || !fallback) return;
 
+          // In QRZ (embedded): always use fallback (QRZ blocks nested external iframes).
           if (isFramed || fromQRZ) {
             embed.style.display = "none";
             fallback.style.display = "block";
             return;
           }
 
-          // Outside QRZ: keep iframe, but still provide a timed fallback if it seems blocked.
-          const iframe = embed.querySelector("iframe");
-          if (!iframe) return;
+          // On your own site: keep the iframe. Do NOT auto-hide it (it may just be slow).
+          // Provide a gentle hint link after a few seconds, without changing the layout.
+          const hint = document.createElement("p");
+          hint.className = "sub";
+          hint.style.marginTop = ".6rem";
+          hint.style.display = "none";
+          hint.innerHTML =
+            'If the map does not appear, <a href="#" id="showPreview">show preview</a> or ' +
+            '<a href="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn" target="_blank" rel="noreferrer noopener">open interactive map</a>.';
+          const parent = embed.parentElement;
+          if (parent) parent.parentElement.appendChild(hint);
 
-          let loaded = false;
-          iframe.addEventListener("load", () => { loaded = true; });
+          const showPreview = () => {
+            embed.style.display = "none";
+            fallback.style.display = "block";
+            hint.style.display = "none";
+          };
 
-          setTimeout(() => {
-            // If not loaded after a short delay, switch to fallback.
-            if (!loaded) {
-              embed.style.display = "none";
-              fallback.style.display = "block";
-            }
-          }, 2500);
+          setTimeout(() => { hint.style.display = "block"; }, 8000);
+
+          document.addEventListener("click", (e) => {
+            const a = e.target && e.target.closest ? e.target.closest("#showPreview") : null;
+            if (!a) return;
+            e.preventDefault();
+            showPreview();
+          });
         })();
       </script>
     </section>
