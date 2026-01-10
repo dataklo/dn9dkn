@@ -4,13 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DN9DKN · QSL-Infos</title>
-  <meta name="description" content="DN9DKN – QSL information / QSL-Bestätigung, Station, On-Air Widget und Link zur QSO-Karte." />
-  <link rel="canonical" href="https://www.dn9dkn.de/" />
-  <meta property="og:site_name" content="DN9DKN" />
-  <meta property="og:title" content="DN9DKN · QSL-Infos" />
-  <meta property="og:description" content="DN9DKN – QSL information / QSL-Bestätigung, Station, On-Air Widget und Link zur QSO-Karte." />
-  <meta property="og:url" content="https://www.dn9dkn.de/" />
-
   <meta name="color-scheme" content="dark" />
   <style>
     :root{
@@ -102,10 +95,14 @@
       .notice, .widget-frame { display:none !important; }
       a{ color:#000 !important; text-decoration:underline !important; }
     }
+  
+    .sub{ margin:.55rem 0 0; color:var(--muted); font-size:.92rem }
   </style>
 </head>
 <body>
   <main class="wrap" id="dn9dkn">
+
+    <h2 id="dn9dkn-title" style="text-align:center; font-weight:800 !important; margin:0 0 1rem;">DN9DKN</h2>
 
     <p class="notice">
       <a href="#english-start" aria-label="Scroll to English version">English version below.</a>
@@ -185,7 +182,7 @@
         <div class="card">
           <h3>E-Mail-QSL</h3>
           <p>QSL-Karten per E-Mail werden von den meisten Diplom- und Auswertungsstellen nicht anerkannt. Bitte nach Möglichkeit keine E-Mail-QSLs senden.</p>
-          <p>Falls doch: verwende <em>qsl@[Domain wie im Profil].de</em>. Solche E-Mails beantworte ich gelegentlich, wenn Zeit ist.</p>
+          <p>Falls doch: verwende <em>qsl (at) dn9dkn (dot) de</em>. Solche E-Mails beantworte ich gelegentlich, wenn Zeit ist.</p>
           <p class="note">Für anerkannte Bestätigungen nutze bitte LoTW, OQRS oder das DARC-Büro.</p>
         </div>
       </div>
@@ -284,7 +281,7 @@
         <div class="card">
           <h3>Email QSL</h3>
           <p>Email QSLs are generally not accepted by most award/verification bodies. Please avoid sending QSLs by email if possible.</p>
-          <p>If you still prefer to send one, use <em>qsl@[domain as shown in my profile].de</em>. I reply occasionally when time permits.</p>
+          <p>If you still prefer to send one, use <em>qsl (at) dn9dkn (dot) de</em>. I reply occasionally when time permits.</p>
           <p class="note">For accepted confirmations, please prefer LoTW, OQRS or the DARC bureau.</p>
         </div>
       </div>
@@ -340,37 +337,47 @@
       </div>
 
       <div class="ratio-embed">
-        <div class="map-cta">
-          <p>Die interaktive Karte kann hier nicht eingebettet werden.</p>
+        <!-- Try embedding Wavelog export map -->
+        <iframe
+          title="Last 1000 QSOs map"
+          src="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+          style="width:100%; height:100%; border:0; display:block;">
+        </iframe>
+
+        <!-- Fallback (shown if iframe blocked by browser/server settings) -->
+        <div class="map-cta" style="display:none" id="mapFallback">
+          <p>Falls die Karte hier nicht lädt: öffne sie in einem neuen Tab.</p>
           <p>
-            Öffne die Karte einfach in einem neuen Tab:
             <a href="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn" target="_blank" rel="noreferrer noopener">
               https://log.dclnext.darc.de/visitor/exportmap/dn9dkn
             </a>
           </p>
-          <p>Rot = unbestätigt · Grün = bestätigt · Red = unconfirmed · Green = confirmed.</p>
         </div>
       </div>
+      <p class="sub">Red = unconfirmed · Green = confirmed. last 1000 QSOs</p>
+      <script>
+        // If the iframe fails to load (blocked), show fallback link.
+        (function(){
+          const f = document.querySelector('iframe[title="Last 1000 QSOs map"]');
+          const fb = document.getElementById('mapFallback');
+          if (!f || !fb) return;
+
+          let loaded = false;
+          f.addEventListener('load', () => { loaded = true; });
+
+          // After a short delay: if not loaded, show fallback
+          setTimeout(() => {
+            if (!loaded) {
+              fb.style.display = 'block';
+              f.style.display = 'none';
+            }
+          }, 2500);
+        })();
+      </script>
     </section>
 
   </main>
-
-  <script id="dn9dkn-mailto">
-    // Add recipient to all mailto:? links without exposing it in the HTML source.
-    (function () {
-      const user = "qsl";
-      const domain = "dn9dkn.de";
-      const to = `${user}@${domain}`;
-
-      document.querySelectorAll('a[href^="mailto:?"]').forEach((a) => {
-        const orig = a.getAttribute("href");
-        if (!orig) return;
-        // orig looks like: mailto:?subject=...&body=...
-        const query = orig.slice("mailto:".length); // keeps leading "?"
-        a.setAttribute("href", `mailto:${to}${query}`);
-      });
-    })();
-  </script>
-
 </body>
 </html>
