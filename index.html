@@ -342,85 +342,20 @@
       </div>
 
       <div class="ratio-embed">
-        <!-- Interactive map (works on your own site; may be blocked inside QRZ). -->
-        <div id="mapEmbed" style="width:100%; height:100%;">
-          <iframe
-            title="Last 1000 QSOs map"
-            src="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn"
-            loading="lazy"
-            referrerpolicy="no-referrer"
-            style="width:100%; height:100%; border:0; display:block;">
-          </iframe>
-        </div>
-
-        <!-- QRZ-safe fallback: show hint + local image -->
-        <div class="map-cta" id="mapFallback" style="display:none; width:100%; height:100%; overflow:auto;">
-          <p><strong>Map preview</strong></p>
-          <p>
-            QRZ blocks embedding this external map in an iframe.  
-            Open it here:
-            <a href="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn" target="_blank" rel="noreferrer noopener">
-              log.dclnext.darc.de/visitor/exportmap/dn9dkn
-            </a>
-          </p>
-          <p style="margin:0.9rem 0 0.6rem;">Preview image:</p>
-          <img
-            src="./img/wavelog.png"
-            alt="Wavelog map preview"
-            loading="lazy"
-            style="max-width:100%; height:auto; border-radius:12px; border:1px solid var(--line);" />
-        </div>
+        <!-- Static preview image (no iframe) -->
+        <img
+          src="./img/wavelog.png"
+          alt="Last 1000 QSOs map (preview)"
+          loading="lazy"
+          style="width:100%; height:100%; object-fit:cover; border:0; display:block;" />
       </div>
       <p class="sub">Red = unconfirmed · Green = confirmed. last 1000 QSOs</p>
-      <script>
-        (function () {
-          const isFramed = (window.self !== window.top);
+      <p class="sub">
+        <a href="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn" target="_blank" rel="noreferrer noopener">
+          Open interactive map
+        </a>
+      </p>
 
-          let fromQRZ = false;
-          try {
-            const ref = document.referrer || "";
-            fromQRZ = ref ? /(^|\.)qrz\.com$/i.test(new URL(ref).hostname) : false;
-          } catch (_) {}
-
-          const embed = document.getElementById("mapEmbed");
-          const fallback = document.getElementById("mapFallback");
-          if (!embed || !fallback) return;
-
-          // In QRZ (embedded): always use fallback (QRZ blocks nested external iframes).
-          if (isFramed || fromQRZ) {
-            embed.style.display = "none";
-            fallback.style.display = "block";
-            return;
-          }
-
-          // On your own site: keep the iframe. Do NOT auto-hide it (it may just be slow).
-          // Provide a gentle hint link after a few seconds, without changing the layout.
-          const hint = document.createElement("p");
-          hint.className = "sub";
-          hint.style.marginTop = ".6rem";
-          hint.style.display = "none";
-          hint.innerHTML =
-            'If the map does not appear, <a href="#" id="showPreview">show preview</a> or ' +
-            '<a href="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn" target="_blank" rel="noreferrer noopener">open interactive map</a>.';
-          const parent = embed.parentElement;
-          if (parent) parent.parentElement.appendChild(hint);
-
-          const showPreview = () => {
-            embed.style.display = "none";
-            fallback.style.display = "block";
-            hint.style.display = "none";
-          };
-
-          setTimeout(() => { hint.style.display = "block"; }, 8000);
-
-          document.addEventListener("click", (e) => {
-            const a = e.target && e.target.closest ? e.target.closest("#showPreview") : null;
-            if (!a) return;
-            e.preventDefault();
-            showPreview();
-          });
-        })();
-      </script>
     </section>
 
   </main>
