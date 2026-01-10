@@ -2,15 +2,40 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>404 · Nicht gefunden</title>
-  <link rel="stylesheet" href="./css/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>404 · DN9DKN</title>
+  <meta name="color-scheme" content="dark" />
+  <style>
+    :root{
+      --bg1:#0b1220; --bg2:#0e1630;
+      --panel:#141b2c; --ink:#e9edf6; --muted:#aeb6c9; --accent:#5dd2ff;
+      --line:#23314a; --chip:#1c2640;
+    }
+    *{box-sizing:border-box}
+    html, body{
+      margin:0; padding:0;
+      background:
+        radial-gradient(900px 500px at 12% -10%, rgba(93,210,255,.10), transparent 60%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--ink);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+      line-height:1.6;
+    }
+    a{ color:var(--accent); text-decoration:none }
+    a:hover{ text-decoration:underline }
+    .wrap{ max-width:980px; margin:40px auto; padding:0 clamp(16px, 6vw, 40px); }
+    .panel{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:1rem; }
+    .btn{ display:inline-block; margin-top:.6rem; padding:.58rem .9rem; border-radius:10px; border:1px solid var(--line); background:var(--chip); }
+    .muted{ color:var(--muted); }
+  </style>
 </head>
-<body class="container">
-  <div class="card" style="margin-top:2rem">
-    <h1>404</h1>
-    <p class="muted">Diese Seite existiert nicht.</p>
-    <p><a class="button" href="./">Zur Startseite</a></p>
-  </div>
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <h1 style="font-weight:400; margin:0 0 .25rem;">404</h1>
+      <p class="muted" style="margin:.1rem 0 .6rem;">Diese Seite existiert nicht.</p>
+      <a class="btn" href="/">Zur Startseite</a>
+    </section>
+  </main>
 </body>
 </html>

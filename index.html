@@ -2,222 +2,375 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="DN9DKN – Amateurfunk-Station: QSL-Info, Awards, Links und (optional) letzte QSOs & Karte." />
-  <title>DN9DKN · Amateur Radio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DN9DKN · QSL-Infos</title>
+  <meta name="description" content="DN9DKN – QSL information / QSL-Bestätigung, Station, On-Air Widget und Link zur QSO-Karte." />
   <link rel="canonical" href="https://www.dn9dkn.de/" />
   <meta property="og:site_name" content="DN9DKN" />
-  <meta property="og:title" content="DN9DKN · Amateur Radio" />
-  <meta property="og:description" content="DN9DKN – Amateurfunk-Station: QSL-Info, Awards, Links und (optional) letzte QSOs & Karte." />
+  <meta property="og:title" content="DN9DKN · QSL-Infos" />
+  <meta property="og:description" content="DN9DKN – QSL information / QSL-Bestätigung, Station, On-Air Widget und Link zur QSO-Karte." />
   <meta property="og:url" content="https://www.dn9dkn.de/" />
 
+  <meta name="color-scheme" content="dark" />
+  <style>
+    :root{
+      --bg1:#0b1220; --bg2:#0e1630;
+      --panel:#141b2c; --panel-2:#18233d;
+      --ink:#e9edf6; --muted:#aeb6c9; --accent:#5dd2ff;
+      --line:#23314a; --chip:#1c2640; --ok:#9efe9a; --warn:#ffd685;
+    }
+    *{box-sizing:border-box}
+    html, body{
+      margin:0; padding:0;
+      background:
+        radial-gradient(900px 500px at 12% -10%, rgba(93,210,255,.10), transparent 60%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--ink);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+      line-height:1.6; text-rendering:optimizeLegibility;
+      scroll-behavior:smooth;
+    }
 
-  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./css/styles.css" />
+    /* Lesbarkeit & keine Fettschrift */
+    #dn9dkn, #dn9dkn * { color:var(--ink) !important; }
+    #dn9dkn a, #dn9dkn a:visited, #dn9dkn a:active { color:var(--accent) !important; text-decoration:none }
+    #dn9dkn a:hover { text-decoration:underline }
+    #dn9dkn li::marker { color:var(--muted) !important; }
+    #dn9dkn h1, #dn9dkn h2, #dn9dkn h3, #dn9dkn h4, #dn9dkn h5, #dn9dkn h6, #dn9dkn strong, #dn9dkn b { font-weight:400 !important; }
 
-  <!-- Leaflet (optional map) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    .wrap { max-width:980px; margin:40px auto; padding:0 clamp(16px, 6vw, 40px); }
+    .notice { margin:0 0 16px; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:.65rem 1rem; color:var(--muted) !important; }
+
+    .section { margin-top:16px; background:var(--panel) !important; border:1px solid var(--line); border-radius:16px; padding:1rem; }
+    .section-head { display:flex; align-items:center; gap:.55rem; margin-bottom:.3rem; }
+    .section-head svg { width:20px; height:20px; opacity:.95; }
+    .lead { color:var(--muted) !important; margin:.1rem 0 .6rem; }
+
+    .chips { display:flex; flex-wrap:wrap; gap:.5rem; margin:.4rem 0 0; }
+    .chip { background:var(--chip); border:1px solid var(--line); padding:.32rem .6rem; border-radius:999px; font-size:.92rem; white-space:nowrap; }
+    .chip[href] { display:inline-block; }
+
+    .grid { display:grid; grid-template-columns:1fr; gap:.9rem; }
+    @media (min-width:880px){
+      .grid { grid-template-columns:1fr 1fr; }
+      /* Ungerade Anzahl: letzte Karte volle Breite */
+      .grid > .card:last-child:nth-last-child(1):nth-child(odd){ grid-column:1 / -1; }
+    }
+    .card { background:linear-gradient(180deg,var(--panel-2), #121b31); border:1px solid var(--line); border-radius:12px; padding:.9rem; }
+    .card h3 { margin:0 0 .4rem; font-size:1.1rem; }
+    ul { margin:.35rem 0 .2rem; padding-left:1.1rem; }
+    li { margin:.25rem 0; }
+
+    .labels { display:flex; gap:.45rem; flex-wrap:wrap; margin:.05rem 0 .4rem; }
+    .label { display:inline-flex; align-items:center; gap:.35rem; padding:.26rem .58rem; border-radius:999px; border:1px solid var(--line); background:var(--chip); font-size:.88rem; text-transform:uppercase; letter-spacing:.3px; }
+    .okchip { border-color:#1c5a2d; background:#143020; }
+    .warchip { border-color:#5a420f; background:#2b2010; }
+
+    .ok { color:var(--ok) !important; }
+    .warn { color:var(--warn) !important; }
+    .note { color:var(--muted) !important; }
+
+    .btns { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.55rem; }
+    .btn { display:inline-block; padding:.58rem .9rem; border-radius:10px; border:1px solid var(--line); background:var(--chip); text-decoration:none !important; }
+    .btn.primary { background:#234d6e; }
+    .btn:hover { filter:brightness(1.08); }
+
+    .widget-frame { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:1rem; }
+    .widget-frame iframe { width:100%; height:210px; border:0; border-radius:12px; background:#141b2c; }
+
+    /* Karten-Kachel: 2:1 (Höhe = 50 % der Breite), ohne iframe – nur Text + entspannter Link */
+    .map-frame { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:1rem; }
+    .ratio-embed{
+      position:relative; width:100%; aspect-ratio: 2 / 1;
+      border-radius:12px; background:#141b2c; overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+      padding:1rem;
+    }
+    .map-cta{ text-align:center; max-width:90ch; }
+    .map-cta p{ margin:.35rem 0 .6rem; color:var(--muted); }
+
+    @supports not (aspect-ratio: 2 / 1){
+      .ratio-embed{ height:0; padding-top:50%; }
+      .ratio-embed > .map-cta{
+        position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:1rem;
+      }
+    }
+
+    @media print{
+      body{ background:#fff; color:#000; }
+      .section, .card, .map-frame{ background:#fff !important; border:1px solid #ccc !important; }
+      .notice, .widget-frame { display:none !important; }
+      a{ color:#000 !important; text-decoration:underline !important; }
+    }
+  </style>
 </head>
-
 <body>
-  <a class="skip-link" href="#content">Zum Inhalt springen</a>
+  <main class="wrap" id="dn9dkn">
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true">
-          <img src="./assets/dn9dkn-mark.svg" alt="" />
-        </div>
-        <div>
-          <div class="callsign" id="callsignText">DN9DKN</div>
-          <div class="tagline" id="taglineText">Amateur Radio · Germany</div>
-        </div>
+    <p class="notice">
+      <a href="#english-start" aria-label="Scroll to English version">English version below.</a>
+    </p>
+
+    <!-- Intro (EN) -->
+    <section id="intro" class="section">
+      <div class="section-head">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v18M5 12h14" stroke-width="1.4"/></svg>
+        <h2>DN9DKN – QSL Information</h2>
       </div>
+      <p class="lead">How I confirm QSOs — and how to get in touch.</p>
 
-      <nav class="nav">
-        <a href="#about">Info</a>
-        <a href="#qsl">QSL</a>
-        <a href="#awards">Awards</a>
-        <a href="#qsos">Letzte QSOs</a>
-        <a href="#contact">Kontakt</a>
-      </nav>
-    </div>
-  </header>
-
-  <main id="content" class="container">
-    <section class="hero" id="about">
-      <div class="hero-card">
-        <div class="hero-top">
-          <h1><span id="callsignH1">DN9DKN</span></h1>
-          <div class="hero-badges">
-            <span class="badge">Grid: <strong id="gridText">JO41AJ</strong></span>
-            <span class="badge">DXCC: <strong id="dxccText">Germany</strong></span>
-            <span class="badge">QRZ: <a class="badge-link" id="qrzLink" href="https://www.qrz.com/db/DN9DKN" target="_blank" rel="noopener">Profil öffnen</a></span>
-          </div>
-        </div>
-
-        <p class="muted" id="aboutText">
-          Kurze Stations-Info. (Du kannst diesen Text in <code>js/config.js</code> ändern.)
-        </p>
-
-        <div class="grid two" style="margin-top:14px">
-          <div class="card">
-            <h2 class="h3">Station</h2>
-            <ul class="clean-list">
-              <li><strong>QTH:</strong> <span id="qthText">—</span></li>
-              <li><strong>Locator:</strong> <span id="gridText2">—</span></li>
-              <li><strong>Koordinaten:</strong> <span id="coordsText">—</span></li>
-              <li><strong>Rig/Antenne:</strong> <span id="rigText">—</span></li>
-            </ul>
-          </div>
-
-          <div class="card">
-            <h2 class="h3">Links</h2>
-            <div class="links">
-              <a class="button" id="wavelogLink" href="#" target="_blank" rel="noopener">Wavelog</a>
-              <a class="button" id="clublogLink" href="#" target="_blank" rel="noopener">Club Log</a>
-              <a class="button" id="lotwLink" href="#" target="_blank" rel="noopener">LoTW</a>
-              <a class="button" id="eqslLink" href="#" target="_blank" rel="noopener">eQSL</a>
-            </div>
-            <p class="tiny muted" style="margin-top:10px">
-              Links sind optional – leer lassen, dann werden sie ausgeblendet.
-            </p>
-          </div>
-        </div>
+      <div class="chips" aria-label="Tags">
+        <span class="chip">QSL via Bureau</span>
+        <span class="chip">Direct Postal</span>
+        <a class="chip" href="https://lotw.arrl.org/" target="_blank" rel="noreferrer noopener">LoTW</a>
+        <a class="chip" href="https://www.qrz.com/db/DN9DKN" target="_blank" rel="noreferrer noopener">QRZ.com</a>
+        <a class="chip" href="https://clublog.org/" target="_blank" rel="noreferrer noopener">Club Log</a>
+        <a class="chip" href="https://www.eqsl.cc/" target="_blank" rel="noreferrer noopener">eQSL.cc</a>
+        <a class="chip" href="https://log.dclnext.darc.de/oqrs/dn9dkn" target="_blank" rel="noreferrer noopener">OQRS</a>
       </div>
     </section>
 
-    <section class="section" id="qsl">
+    <!-- QSL (DE) -->
+    <section id="qsl-de" class="section">
       <div class="section-head">
-        <h2>QSL Information</h2>
-        <p class="muted">Wie ich QSL bestätige.</p>
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="3" y="5" width="18" height="14" rx="2" ry="2" stroke-width="1.4"/>
+          <path d="M3 7l9 6 9-6" stroke-width="1.4"/>
+        </svg>
+        <h2>QSL-Bestätigung</h2>
       </div>
-
-      <div class="card">
-        <p class="lead" id="qslText">PSE QSL via BUREAU / DIRECT</p>
-        <div class="row-between">
-          <div>
-            <div class="tiny muted">Kontakt:</div>
-            <div><a id="mailLink" class="link" href="#">—</a></div>
-          </div>
-          <div>
-            <div class="tiny muted">Hinweis:</div>
-            <div class="tiny muted">E-Mail wird per JS zusammengesetzt (Spam-Schutz).</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="awards">
-      <div class="section-head">
-        <h2>Awards</h2>
-        <p class="muted">Snapshot der QRZ Awards (kannst du in der Config pflegen).</p>
-      </div>
-
-      <div class="card">
-        <div class="table-wrap">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Award</th>
-                <th>Nr.</th>
-                <th>Granted (UTC)</th>
-                <th>Endorsements</th>
-              </tr>
-            </thead>
-            <tbody id="awardsTbody">
-              <tr><td colspan="4" class="muted">Lade…</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="qsos">
-      <div class="section-head">
-        <h2>Letzte QSOs</h2>
-        <p class="muted">
-          Optional: lade QSOs aus einem JSON-Endpoint (z. B. Export aus Wavelog). Standardmäßig werden Demo-Daten genutzt.
-        </p>
-      </div>
-
-      <div class="grid two">
+      <div class="grid">
         <div class="card">
-          <h3 class="h3">Liste</h3>
-          <div class="table-wrap">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>UTC</th>
-                  <th>Call</th>
-                  <th>Band</th>
-                  <th>Mode</th>
-                  <th>Land</th>
-                </tr>
-              </thead>
-              <tbody id="qsoTbody">
-                <tr><td colspan="5" class="muted">Lade…</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="tiny muted" id="qsoMeta" style="margin-top:10px">—</p>
+          <div class="labels"><span class="label okchip">Auto-QSL</span></div>
+          <p>Telefonie und CW bestätige ich automatisch über das DARC-Büro, sofern ein QRZ.com-Profil vorhanden ist und dort QSL-Karten nicht ausdrücklich abgelehnt werden.</p>
+          <ul>
+            <li>SSB, FM, AM</li>
+            <li>digitale Sprache: DMR, C4FM, D-STAR, etc.</li>
+          </ul>
+          <p class="ok">Wenn das passt, musst du nichts weiter tun.</p>
         </div>
 
         <div class="card">
-          <h3 class="h3">Karte</h3>
-          <div class="map-aspect-2x1">
-            <div id="map" class="map"></div>
+          <div class="labels"><span class="label warchip">Auf Anfrage / Antwort</span></div>
+          <p>PC-automatisierte Betriebsarten bestätige ich auf Nachfrage oder als Rückantwort – am schnellsten über OQRS.</p>
+          <ul>
+            <li>FT8, FT4, JS8</li>
+            <li>PSK, RTTY, WSPR, APRS, etc.</li>
+          </ul>
+          <div class="btns">
+            <a class="btn" href="https://log.dclnext.darc.de/oqrs/dn9dkn" target="_blank" rel="noreferrer noopener">OQRS anfordern</a>
+            <a class="btn" href="mailto:?subject=QSL-Anfrage%20(Datenmodi)%20an%20DN9DKN&body=Hallo%20DN9DKN%2C%0A%0Abitte%20best%C3%A4tige%20unser%20QSO%20aus%20einem%20PC-automatisierten%20Modus.%0A%0A---%20QSO-Daten%20---%0ARufzeichen%20(ich)%3A%0ADatum%20(UTC)%3A%0ABand%2FFrequenz%3A%0AModus%3A%20FT8%20%7C%20FT4%20%7C%20JS8%20%7C%20PSK%20%7C%20RTTY%20%7C%20WSPR%20%7C%20APRS%0ARST%20gesendet%2Fempfangen%3A%0A%0AOptional%20(Post)%3A%20R%C3%BCcksendeadresse%0A%0A73%2C%0A">E-Mail öffnen</a>
           </div>
-          <p class="tiny muted" style="margin-top:10px">
-            This map shows a selection of recent QSOs. Data may be incomplete or delayed (test setup).
-          </p>
-          <div class="row-between">
-            <div class="tiny muted" id="mapMeta">—</div>
-            <a class="link" id="mapOpenLink" href="#" target="_blank" rel="noopener">In OpenStreetMap öffnen</a>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:.9rem">
+        <div class="card" id="online-confirmation-de">
+          <h3>Online-Bestätigung</h3>
+          <p>Ich lade alle QSOs automatisch zu LoTW, QRZ.com, Club Log und eQSL.cc hoch. So kannst du unseren Kontakt schnell online bestätigen – ganz ohne Papierkarte.</p>
+        </div>
+
+        <div class="card">
+          <h3>Direkt per Post</h3>
+          <p>Wenn das Büro keine Option ist, verschicke ich QSL-Karten auch direkt per Post. Eine kurze E-Mail vorab reicht.</p>
+          <ul>
+            <li>Rücksendeadresse genügt; ein frankierter Rückumschlag ist ideal.</li>
+            <li>Porto in EUR, USD oder via PayPal ist willkommen, aber nicht erforderlich.</li>
+          </ul>
+          <div class="btns">
+            <a class="btn" href="mailto:?subject=QSL%20direkt%20per%20Post%20an%20DN9DKN&body=Hallo%20DN9DKN%2C%0A%0Abitte%20sende%20mir%20eine%20QSL%20direkt%20per%20Post.%0A%0A---%20Adresse%20f%C3%BCr%20R%C3%BCckversand%20---%0AName%3A%0AStra%C3%9Fe%2C%20Nr.%3A%0APLZ%2C%20Ort%2C%20Land%3A%0A%0AOptional%3A%20frankierter%20R%C3%BCckumschlag%20%2F%20Portobeteiligung%0A%0A---%20QSO%20(falls%20Datenmodus)%20---%0ADatum%20(UTC)%3A%0ABand%2FFrequenz%3A%0AModus%3A%0ARST%20gesendet%2Fempfangen%3A%0A%0ADanke%20und%2073%2C%0A">E-Mail öffnen</a>
           </div>
+        </div>
+
+        <div class="card">
+          <h3>E-Mail-QSL</h3>
+          <p>QSL-Karten per E-Mail werden von den meisten Diplom- und Auswertungsstellen nicht anerkannt. Bitte nach Möglichkeit keine E-Mail-QSLs senden.</p>
+          <p>Falls doch: verwende <em>qsl@[Domain wie im Profil].de</em>. Solche E-Mails beantworte ich gelegentlich, wenn Zeit ist.</p>
+          <p class="note">Für anerkannte Bestätigungen nutze bitte LoTW, OQRS oder das DARC-Büro.</p>
         </div>
       </div>
     </section>
 
-    <section class="section" id="contact">
+    <!-- Station (DE) -->
+    <section id="station-de" class="section">
       <div class="section-head">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v18M5 12h14" stroke-width="1.4"/></svg>
+        <h2>Station</h2>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>Betrieb &amp; Technik</h3>
+          <p>Zuhause habe ich keine feste Station, deshalb bin ich häufig portabel QRV – im Park, auf einem Hügel oder unterwegs auf Reisen.</p>
+          <ul>
+            <li>Icom IC-7300</li>
+            <li>Chelegance MC-750 (mobile Groundplane)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Clubstation</h3>
+          <p>Außerdem funke ich an der Clubstation <a href="https://www.qrz.com/db/DL0PS" target="_blank" rel="noreferrer noopener">DL0PS</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kontakt (DE) -->
+    <section id="kontakt-de" class="section">
+      <div class="section-head">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8" stroke-width="1.4"/><path d="M7 10l5 4 5-4" stroke-width="1.4"/><path d="M3 6l9 7 9-7" stroke-width="1.4"/></svg>
         <h2>Kontakt</h2>
-        <p class="muted">Kurzer Draht für QSL / Fragen.</p>
+      </div>
+      <p class="lead">Für QSL per Post reicht eine kurze E-Mail mit deiner Rücksendeadresse.</p>
+      <div class="btns">
+        <a class="btn primary" href="mailto:?subject=Kontakt%20DN9DKN&body=Hallo%20DN9DKN%2C%0A%0A...">E-Mail öffnen</a>
+      </div>
+      <p>73 und vy best DX · DN9DKN</p>
+    </section>
+
+    <!-- Anchor for English -->
+    <span id="english-start"></span>
+
+    <!-- QSL (EN) -->
+    <section id="qsl-en" class="section">
+      <div class="section-head">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="3" y="5" width="18" height="14" rx="2" ry="2" stroke-width="1.4"/>
+          <path d="M3 7l9 6 9-6" stroke-width="1.4"/>
+        </svg>
+        <h2>QSL confirmation</h2>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="labels"><span class="label okchip">Auto-QSL</span></div>
+          <p>Phone and CW are confirmed automatically via the DARC bureau, provided a QRZ.com profile exists and QSL cards are not explicitly declined there.</p>
+          <ul>
+            <li>SSB, FM, AM</li>
+            <li>digital voice: DMR, C4FM, D-STAR, etc.</li>
+          </ul>
+          <p class="ok">If that applies, no action is needed.</p>
+        </div>
+
+        <div class="card">
+          <div class="labels"><span class="label warchip">On request / reply</span></div>
+          <p>I confirm PC-automated modes on request or as a reply — OQRS is the quickest route.</p>
+          <ul>
+            <li>FT8, FT4, JS8</li>
+            <li>PSK, RTTY, WSPR, APRS, etc.</li>
+          </ul>
+          <div class="btns">
+            <a class="btn" href="https://log.dclnext.darc.de/oqrs/dn9dkn" target="_blank" rel="noreferrer noopener">Request via OQRS</a>
+            <a class="btn" href="mailto:?subject=QSL%20request%20(data%20modes)%20to%20DN9DKN&body=Hello%20DN9DKN%2C%0A%0APlease%20confirm%20our%20PC-automated%20mode%20QSO.%0A%0A---%20QSO%20details%20---%0AMy%20callsign%3A%0ADate%20(UTC)%3A%0ABand%2FFrequency%3A%0AMode%3A%20FT8%20%7C%20FT4%20%7C%20JS8%20%7C%20PSK%20%7C%20RTTY%20%7C%20WSPR%20%7C%20APRS%0ARST%20sent%2Freceived%3A%0A%0AIf%20postal%3A%20return%20address%0A%0A73%2C%0A">Open email</a>
+          </div>
+        </div>
       </div>
 
-      <div class="card">
-        <p>
-          Schreib mir: <a id="mailLink2" class="link" href="#">—</a>
-        </p>
-        <p class="tiny muted">
-          Du kannst hier auch ein Kontaktformular ergänzen (statisch via Formspree / Netlify Forms / Cloudflare).
-        </p>
+      <div class="grid" style="margin-top:.9rem">
+        <div class="card">
+          <h3>Online confirmation</h3>
+          <p>All QSOs are uploaded automatically to LoTW, QRZ.com, Club Log and eQSL.cc, so you can confirm our contact online without a paper card.</p>
+        </div>
+
+        <div class="card">
+          <h3>Direct postal</h3>
+          <p>If the bureau isn’t an option, I can send a card by post. A short email beforehand is enough.</p>
+          <ul>
+            <li>Please include your return address; a stamped SAE is ideal.</li>
+            <li>Postage in EUR, USD or via PayPal is appreciated, not required.</li>
+          </ul>
+          <div class="btns">
+            <a class="btn" href="mailto:?subject=Direct%20postal%20QSL%20to%20DN9DKN&body=Hello%20DN9DKN%2C%0A%0AI%27d%20like%20to%20request%20a%20QSL%20card%20by%20postal%20mail.%0A%0A---%20Return%20address%20---%0AName%3A%0AStreet%2C%20No.%3A%0APostal%20code%2C%20City%2C%20Country%3A%0A%0AOptional%3A%20stamped%20SAE%20%2F%20postage%20contribution%0A%0A---%20QSO%20(if%20data%20mode)%20---%0ADate%20(UTC)%3A%0ABand%2FFrequency%3A%0AMode%3A%0ARST%20sent%2Freceived%3A%0A%0AThanks%20and%2073%2C%0A">Open email</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Email QSL</h3>
+          <p>Email QSLs are generally not accepted by most award/verification bodies. Please avoid sending QSLs by email if possible.</p>
+          <p>If you still prefer to send one, use <em>qsl@[domain as shown in my profile].de</em>. I reply occasionally when time permits.</p>
+          <p class="note">For accepted confirmations, please prefer LoTW, OQRS or the DARC bureau.</p>
+        </div>
       </div>
     </section>
 
-    <footer class="footer">
-      <p class="tiny muted">
-        © <span id="year"></span> <span id="callsignFooter">DN9DKN</span> · Hosted on GitHub Pages
-      </p>
-    </footer>
+    <!-- Station (EN) -->
+    <section id="station-en" class="section">
+      <div class="section-head">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v18M5 12h14" stroke-width="1.4"/></svg>
+        <h2>Station</h2>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>Operation &amp; equipment</h3>
+          <p>I don’t have a permanent shack at home, so I’m often operating portable — in parks, on hills, or while traveling.</p>
+          <ul>
+            <li>Icom IC-7300</li>
+            <li>Chelegance MC-750 (mobile ground-plane)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Club station</h3>
+          <p>I also operate at the club station <a href="https://www.qrz.com/db/DL0PS" target="_blank" rel="noreferrer noopener">DL0PS</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact (EN) -->
+    <section id="contact-en" class="section">
+      <div class="section-head">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8" stroke-width="1.4"/><path d="M7 10l5 4 5-4" stroke-width="1.4"/><path d="M3 6l9 7 9-7" stroke-width="1.4"/></svg>
+        <h2>Contact</h2>
+      </div>
+      <p class="lead">For postal QSL, a short email with your return address is all I need.</p>
+      <div class="btns">
+        <a class="btn primary" href="mailto:?subject=Contact%20DN9DKN&body=Hello%20DN9DKN%2C%0A%0A...">Open email</a>
+      </div>
+      <p>73 and vy best DX · DN9DKN</p>
+    </section>
+
+    <!-- DARC DCL On-Air Widget -->
+    <section id="on-air" class="section widget-frame" aria-label="DARC DCL On Air">
+      <iframe src="https://log.dclnext.darc.de/widgets/on_air/2ea0c65956" loading="lazy" title="DARC DCL On Air"></iframe>
+    </section>
+
+    <!-- Karten-Kachel (unter dem On-Air-Widget), 2:1, nur Text + Link -->
+    <section id="qso-map" class="section map-frame" aria-label="QSO-Karte">
+      <div class="section-head">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z" stroke-width="1.4"/>
+        </svg>
+        <h2>QSO-Karte / QSO map</h2>
+      </div>
+
+      <div class="ratio-embed">
+        <div class="map-cta">
+          <p>Die interaktive Karte kann hier nicht eingebettet werden.</p>
+          <p>
+            Öffne die Karte einfach in einem neuen Tab:
+            <a href="https://log.dclnext.darc.de/visitor/exportmap/dn9dkn" target="_blank" rel="noreferrer noopener">
+              https://log.dclnext.darc.de/visitor/exportmap/dn9dkn
+            </a>
+          </p>
+          <p>Rot = unbestätigt · Grün = bestätigt · Red = unconfirmed · Green = confirmed.</p>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <script src="./js/config.example.js"></script>
-  <!-- Optional: create js/config.js to override settings -->
-  <script>
-    (function(){
-      const s = document.createElement('script');
-      s.src = './js/config.js';
-      s.defer = true;
-      s.onload = () => window.__CONFIG_LOADED__ = true;
-      s.onerror = () => window.__CONFIG_LOADED__ = false;
-      document.head.appendChild(s);
+  <script id="dn9dkn-mailto">
+    // Add recipient to all mailto:? links without exposing it in the HTML source.
+    (function () {
+      const user = "qsl";
+      const domain = "dn9dkn.de";
+      const to = `${user}@${domain}`;
+
+      document.querySelectorAll('a[href^="mailto:?"]').forEach((a) => {
+        const orig = a.getAttribute("href");
+        if (!orig) return;
+        // orig looks like: mailto:?subject=...&body=...
+        const query = orig.slice("mailto:".length); // keeps leading "?"
+        a.setAttribute("href", `mailto:${to}${query}`);
+      });
     })();
   </script>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="./js/main.js"></script>
 </body>
 </html>
